@@ -9,7 +9,7 @@
     background-color: #f3f3f3;
   }
   
-  header {
+header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -68,31 +68,28 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 20px 0;
+    margin: 20px auto;
+    overflow: hidden;
+    width: 90%;
   }
   
   .carousel-track {
     display: flex;
-    overflow: hidden;
-    width: 80%;
+    transition: transform 0.3s ease-in-out;
+    will-change: transform;
   }
   
   .carousel-item {
-    min-width: 300px;
-    margin: 0 10px;
-    padding: 50px 0;
+    flex: 0 0 calc(100% / 5);
+    margin: 0 5px;
     background-color: #e0e0e0;
     text-align: center;
-    font-size: 18px;
+    font-size: 16px;
     border-radius: 10px;
-  }
-  
-  button.prev, button.next {
-    background-color: #888;
-    color: white;
-    border: none;
-    padding: 10px;
-    cursor: pointer;
+    height: 120px;
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
   }
   
   .item-grid {
