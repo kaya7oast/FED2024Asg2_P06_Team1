@@ -125,4 +125,3 @@ track.addEventListener('touchend', stopDrag);
 
 prevButton.addEventListener('click', moveToPrev);
 nextButton.addEventListener('click', moveToNext);
-
