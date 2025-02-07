@@ -88,6 +88,11 @@ address {
   font-style: normal;
   line-height: inherit; }
 
+  .Map-Of-Ngee-Ann img {
+    display: block;
+    margin: 0 auto;
+  }  
+
 ol,
 ul,
 dl {
