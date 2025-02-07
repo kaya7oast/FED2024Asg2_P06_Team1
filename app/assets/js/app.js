@@ -353,6 +353,7 @@
 
 })(jQuery);
 
+// like function
 document.addEventListener("DOMContentLoaded", function () {
   document.querySelectorAll(".product-like").forEach(function (likeButton) {
     likeButton.addEventListener("click", function (event) {
@@ -362,6 +363,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+// login stuff
 function registerUser(userData) {
   const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${userData.email}"}`;
   const apiKey = "67a5be5f9c979725831b2a7d"; // Your API Key
@@ -493,7 +495,7 @@ function loginUser(email, password) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  const loginForm = document.getElementById("registerForm");
+  const loginForm = document.getElementById("LoginForm");
   const submitBtn = document.getElementById("submitBtn"); // New submit button
 
   submitBtn.addEventListener("click", function (e) {
@@ -514,3 +516,139 @@ document.addEventListener("DOMContentLoaded", function () {
     loginUser(emailsInput, passwordsInput);
   });
 });
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   document.querySelectorAll(".product-like").forEach(function (likeButton) {
+//     likeButton.addEventListener("click", function (event) {
+//       event.preventDefault(); // Prevent any default link behavior
+      
+//       // Get product data from the data attributes of the clicked button
+//       const product = {
+//         id: this.getAttribute("data-id"),
+//         name: this.getAttribute("data-name"),
+//         price: this.getAttribute("data-price"),
+//         image: this.getAttribute("data-image")
+//       };
+
+//       // Add or remove 'active' class for visual feedback
+//       this.classList.toggle("active");
+
+//       // Send the product to the user's wishlist in the database
+//       addToWishlist(product);
+//     });
+//   });
+// });
+
+// // Function to add product to wishlist in the database
+// function addToWishlist(product) {
+//   const userEmail = localStorage.getItem("userEmail"); // Get the logged-in user's email
+//   const apiKey = "67a5be5f9c979725831b2a7d"; // RestDB API key
+
+//   // Get the user's current wishlist from the database
+//   const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${userEmail}"}`;
+  
+//   fetch(url, {
+//     method: "GET",
+//     headers: {
+//       "Content-Type": "application/json",
+//       "x-apikey": apiKey,
+//     },
+//   })
+//     .then(response => response.json())
+//     .then(data => {
+//       if (data.length === 0) {
+//         alert("User not found.");
+//         return;
+//       }
+
+//       const user = data[0]; // Get the user data
+//       const wishlist = user.wishlist || []; // Initialize wishlist if it's empty
+
+//       // Add the liked product to the wishlist
+//       wishlist.push(product);
+
+//       // Update the user's wishlist in the database
+//       const updateUrl = `https://feddatabase-954b.restdb.io/rest/userz/${user._id}`;
+      
+//       fetch(updateUrl, {
+//         method: "PUT",
+//         headers: {
+//           "Content-Type": "application/json",
+//           "x-apikey": apiKey,
+//         },
+//         body: JSON.stringify({ wishlist: wishlist }),
+//       })
+//         .then(response => response.json())
+//         .then(updatedUser => {
+//           alert("Product added to your wishlist!");
+//         })
+//         .catch(error => {
+//           console.error("Error updating wishlist:", error);
+//           alert("Error adding product to wishlist.");
+//         });
+//     })
+//     .catch(error => {
+//       console.error("Error fetching user data:", error);
+//       alert("Error fetching user data.");
+//     });
+// }
+
+// document.addEventListener("DOMContentLoaded", function () {
+//   const userEmail = localStorage.getItem("userEmail"); // Get the logged-in user's email
+//   const apiKey = "67a5be5f9c979725831b2a7d"; // RestDB API key
+
+//   // Fetch the user's data from the database
+//   const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${userEmail}"}`;
+
+//   fetch(url, {
+//     method: "GET",
+//     headers: {
+//       "Content-Type": "application/json",
+//       "x-apikey": apiKey,
+//     },
+//   })
+//     .then(response => response.json())
+//     .then(data => {
+//       if (data.length === 0) {
+//         alert("User not found.");
+//         return;
+//       }
+
+//       const user = data[0]; // Get the user data
+//       const wishlist = user.wishlist || []; // Get the wishlist from the user data
+
+//       // Populate the wishlist section in profile.html
+//       const wishlistContainer = document.querySelector("#wishlistContainer"); // The container in your HTML
+//       wishlistContainer.innerHTML = ""; // Clear existing content
+
+//       wishlist.forEach(product => {
+//         const productHTML = `
+//           <div class="col-md-6 col-lg-4">
+//             <div class="product">
+//               <figure class="product-image">
+//                 <a href="#!" class="btn btn-ico btn-rounded btn-white"><i class="icon-x"></i></a>
+//                 <a href="#!">
+//                   <img src="${product.image}" alt="${product.name}">
+//                   <img src="${product.image}" alt="${product.name}">
+//                 </a>
+//               </figure>
+//               <div class="product-meta">
+//                 <h3 class="product-title"><a href="#!">${product.name}</a></h3>
+//                 <div class="product-price">
+//                   <span>$${product.price}</span>
+//                   <span class="product-action">
+//                     <a href="#!">Add to cart</a>
+//                   </span>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         `;
+//         wishlistContainer.innerHTML += productHTML;
+//       });
+//     })
+//     .catch(error => {
+//       console.error("Error fetching user data:", error);
+//       alert("Error fetching user data.");
+//     });
+// });
