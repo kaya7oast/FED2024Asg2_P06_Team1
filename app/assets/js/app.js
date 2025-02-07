@@ -363,14 +363,43 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function registerUser(userData) {
-  const url = "https://feddatabase-954b.restdb.io/rest/userz"; // Replace with your RestDB users collection API URL
-  const apiKey = "67a5be5f9c979725831b2a7d"; // Replace with your RestDB API key
+  const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${userData.email}"}`;
+  const apiKey = "67a5be5f9c979725831b2a7d"; // Your API Key
+
+  // Step 1: Check if email already exists
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "x-apikey": apiKey,
+    },
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.length > 0) {
+        // Email already exists, block registration
+        alert("Email already registered. Please log in.");
+      } else {
+        // Email is unique, proceed with registration
+        createNewUser(userData);
+      }
+    })
+    .catch(error => {
+      console.error("Error checking email:", error);
+      alert("An error occurred. Please try again.");
+    });
+}
+
+// Step 2: Function to create a new user if email is unique
+function createNewUser(userData) {
+  const url = "https://feddatabase-954b.restdb.io/rest/userz";
+  const apiKey = "67a5be5f9c979725831b2a7d"; // Your API Key
 
   fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-apikey": apiKey, // Authorization header
+      "x-apikey": apiKey,
     },
     body: JSON.stringify(userData),
   })
@@ -378,16 +407,17 @@ function registerUser(userData) {
     .then(data => {
       if (data._id) {
         alert("Registration successful!");
-        window.location.href = "profile.html"; // Redirect to the profile page or wherever needed
+        window.location.href = "profile.html"; // Redirect after success
       } else {
         alert("Registration failed. Please try again.");
       }
     })
     .catch(error => {
       console.error("Error during registration:", error);
-      alert("Error occurred. Please try again.");
+      alert("An error occurred. Please try again.");
     });
 }
+
 
 document.addEventListener("DOMContentLoaded", function() {
   // Select the register form and button
@@ -424,5 +454,63 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Send data to RestDB
     registerUser(userData);
+  });
+});
+
+function loginUser(email, password) {
+  const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${email}"}`;
+  const apiKey = "67a5be5f9c979725831b2a7d"; // Your RestDB API Key
+
+  fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      "x-apikey": apiKey,
+    },
+  })
+    .then(response => response.json())
+    .then(data => {
+      console.log("Database response:", data); // Debugging
+
+      if (data.length === 0) {
+        alert("No account found with this email.");
+        return;
+      }
+
+      const user = data[0]; // Get the first matching user
+      if (user.password === password) {
+        alert("Login successful!");
+        localStorage.setItem("userEmail", email); // Save login info
+        window.location.href = "profile.html"; // Redirect to profile
+      } else {
+        alert("Incorrect password. Please try again.");
+      }
+    })
+    .catch(error => {
+      console.error("Error during login:", error);
+      alert("An error occurred. Please try again.");
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const loginForm = document.getElementById("registerForm");
+  const submitBtn = document.getElementById("submitBtn"); // New submit button
+
+  submitBtn.addEventListener("click", function (e) {
+    e.preventDefault(); // Prevent form submission
+
+    const emailsInput = document.getElementById("exampleInputEmail1").value.trim();
+    const passwordsInput = document.getElementById("exampleInputPassword1").value.trim();
+
+    // Debugging: Check if the fields are populated correctly
+    console.log("Email:", emailsInput);
+    console.log("Password:", passwordsInput);
+
+    if (!emailsInput || !passwordsInput) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    loginUser(emailsInput, passwordsInput);
   });
 });
