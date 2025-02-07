@@ -352,3 +352,77 @@
   });
 
 })(jQuery);
+
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll(".product-like").forEach(function (likeButton) {
+    likeButton.addEventListener("click", function (event) {
+      event.preventDefault(); // Prevent any default link behavior
+      this.classList.toggle("active"); // Toggle the 'active' class
+    });
+  });
+});
+
+function registerUser(userData) {
+  const url = "https://feddatabase-954b.restdb.io/rest/userz"; // Replace with your RestDB users collection API URL
+  const apiKey = "67a5be5f9c979725831b2a7d"; // Replace with your RestDB API key
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-apikey": apiKey, // Authorization header
+    },
+    body: JSON.stringify(userData),
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data._id) {
+        alert("Registration successful!");
+        window.location.href = "profile.html"; // Redirect to the profile page or wherever needed
+      } else {
+        alert("Registration failed. Please try again.");
+      }
+    })
+    .catch(error => {
+      console.error("Error during registration:", error);
+      alert("Error occurred. Please try again.");
+    });
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Select the register form and button
+  const registerForm = document.getElementById("registerForm");
+
+  registerForm.addEventListener("submit", function(e) {
+    e.preventDefault(); // Prevent form submission
+
+    // Capture form data
+    const emailInput = document.getElementById("exampleInputEmail2");
+    const passwordInput = document.getElementById("exampleInputPassword3");
+    const repeatPasswordInput = document.getElementById("exampleInputPassword4");
+
+    const emails = emailInput.value.trim();
+    const passwords = passwordInput.value.trim();
+    const repeatPasswords = repeatPasswordInput.value.trim();
+
+    // Validate the form fields
+    if (emails === "" || passwords === "" || repeatPasswords === "") {
+      alert("Please fill in all fields.");
+      return; // Stop execution if fields are empty
+    }
+
+    if (passwords !== repeatPasswords) {
+      alert("Passwords do not match.");
+      return; // Stop execution if passwords don't match
+    }
+
+    // Prepare data for sending to RestDB
+    const userData = {
+      email: emails,
+      password: passwords, // Ideally, hash this password before saving it
+    };
+
+    // Send data to RestDB
+    registerUser(userData);
+  });
+});

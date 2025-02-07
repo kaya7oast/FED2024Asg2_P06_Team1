@@ -13685,6 +13685,10 @@ img {
   .product-like:hover::before {
     content: "\ebde";
     color: #4F944F; }
+  .product-like.active::before {
+    color: #4F944F; /* Keeps the heart green when clicked */
+    content: "\ebde"; /* Ensures the filled heart icon stays */
+  }
 
 .product-promo {
   position: absolute;
