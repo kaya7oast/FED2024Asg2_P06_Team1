@@ -691,6 +691,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // // Fetch the first product when the page loads
 // fetchFirstProduct();
+
+
+//Eden attempt to make it look nice duplicated your original code below down freak out
 const apiKey = "67a5be5f9c979725831b2a7d";  // Replace with your actual API key
 const databaseUrl = "https://feddatabase-954b.restdb.io/rest/products";  // Correct URL
 
@@ -725,15 +728,14 @@ function displayProduct(product) {
         <div class="col-6 col-lg-4">
             <div class="product">
                 <figure class="product-image">
-                    <a href="product-classic.html">
-                        <img src="${product.image1 || 'https://via.placeholder.com/200'}" alt="Image 1">
-                        <img src="${product.image2 || 'https://via.placeholder.com/200'}" alt="Image 2">
-                        <img src="${product.image3 || 'https://via.placeholder.com/200'}" alt="Image 3">
+                    <a href="${product.name}.html">
+                        <img src="${product.image2 || 'https://via.placeholder.com/200'}" alt="Image 1">
+                        <img src="${product.image1 || 'https://via.placeholder.com/200'}" alt="Image 2">
                     </a>
                 </figure>
                 <div class="product-meta">
                     <h3 class="product-title">
-                        <a href="product-classic.html">${product.name}</a>
+                        <a href="${product.name}.html">${product.name}</a>
                     </h3>
                     <div class="product-price">
                         <span>$${product.price}</span>
@@ -741,12 +743,7 @@ function displayProduct(product) {
                             <a href="#!">Add to cart</a>
                         </span>
                     </div>
-                    <p class="${product.instock ? 'instock' : 'outofstock'}">
-                        ${product.instock ? 'In Stock' : 'Out of Stock'}
-                    </p>
-                    <p><strong>Brand:</strong> ${product.brand}</p>
-                    <p><strong>Category:</strong> ${product.category}</p>
-                    <p><strong>Description:</strong> ${product.description}</p>
+                    <a href="#!" class="product-like"></a>
                 </div>
             </div>
         </div>
@@ -758,3 +755,75 @@ function displayProduct(product) {
 
 // Fetch and display products when the page loads
 fetchProducts();
+
+
+
+//original code Jayden
+
+// const apiKey = "67a5be5f9c979725831b2a7d";  // Replace with your actual API key
+// const databaseUrl = "https://feddatabase-954b.restdb.io/rest/products";  // Correct URL
+
+// async function fetchProducts() {
+//     try {
+//         const response = await fetch(databaseUrl, {
+//             headers: {
+//                 "x-apikey": apiKey,
+//                 "Accept": "application/json"
+//             }
+//         });
+
+//         if (!response.ok) throw new Error("Failed to fetch products");
+
+//         const products = await response.json();
+        
+//         // Log the products to verify their structure
+//         console.log(products);
+
+//         // Loop through all products and display them
+//         products.forEach(product => {
+//             displayProduct(product);
+//         });
+//     } catch (error) {
+//         console.error("Error:", error);
+//     }
+// }
+
+// function displayProduct(product) {
+//     // Create the HTML structure for each product
+//     const productHTML = `
+//         <div class="col-6 col-lg-4">
+//             <div class="product">
+//                 <figure class="product-image">
+//                     <a href="product-classic.html">
+//                         <img src="${product.image1 || 'https://via.placeholder.com/200'}" alt="Image 1">
+//                         <img src="${product.image2 || 'https://via.placeholder.com/200'}" alt="Image 2">
+//                         <img src="${product.image3 || 'https://via.placeholder.com/200'}" alt="Image 3">
+//                     </a>
+//                 </figure>
+//                 <div class="product-meta">
+//                     <h3 class="product-title">
+//                         <a href="product-classic.html">${product.name}</a>
+//                     </h3>
+//                     <div class="product-price">
+//                         <span>$${product.price}</span>
+//                         <span class="product-action">
+//                             <a href="#!">Add to cart</a>
+//                         </span>
+//                     </div>
+//                     <p class="${product.instock ? 'instock' : 'outofstock'}">
+//                         ${product.instock ? 'In Stock' : 'Out of Stock'}
+//                     </p>
+//                     <p><strong>Brand:</strong> ${product.brand}</p>
+//                     <p><strong>Category:</strong> ${product.category}</p>
+//                     <p><strong>Description:</strong> ${product.description}</p>
+//                 </div>
+//             </div>
+//         </div>
+//     `;
+
+//     // Append the product to the product container in the HTML
+//     document.getElementById("products-container").innerHTML += productHTML;
+// }
+
+// // Fetch and display products when the page loads
+// fetchProducts();
