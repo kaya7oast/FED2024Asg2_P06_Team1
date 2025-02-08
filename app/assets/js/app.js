@@ -410,6 +410,7 @@ function createNewUser(userData) {
       if (data._id) {
         alert("Registration successful!");
         window.location.href = "profile.html"; // Redirect after success
+        sessionStorageStorage.setItem("isLoggedIn", "true");
       } else {
         alert("Registration failed. Please try again.");
       }
@@ -483,6 +484,7 @@ function loginUser(email, password) {
       if (user.password === password) {
         alert("Login successful!");
         localStorage.setItem("userEmail", email); // Save login info
+        sessionStorage.setItem("isLoggedIn", "true");
         window.location.href = "profile.html"; // Redirect to profile
       } else {
         alert("Incorrect password. Please try again.");
@@ -827,3 +829,13 @@ fetchProducts();
 
 // // Fetch and display products when the page loads
 // fetchProducts();
+
+// more login stuff
+
+document.addEventListener("DOMContentLoaded", function () {
+  const userDisplay = document.getElementById("userDisplay");
+  const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+  const userEmail = localStorage.getItem("userEmail"); // Retrieve logged-in user's email
+  if (userEmail && isLoggedIn)
+    {userDisplay.innerHTML = `<a class="nav-link" href="profile.html">Michael</a>`;}
+});
