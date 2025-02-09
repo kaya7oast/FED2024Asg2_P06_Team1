@@ -373,7 +373,7 @@ document.addEventListener("click", async function (event) {
       }
 
       // Fetch user details from database
-      const userUrl = `https://feddatabases-957b.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
+      const userUrl = `https://feddatabase-217e.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
       const response = await fetch(userUrl, {
           headers: {
               "x-apikey": apiKey,
@@ -401,7 +401,7 @@ document.addEventListener("click", async function (event) {
           });
 
           // Update wishlist in database
-          const updateUrl = `https://feddatabases-957b.restdb.io/rest/userz/${userId}`;
+          const updateUrl = `https://feddatabase-217e.restdb.io/rest/userz/${userId}`;
           await fetch(updateUrl, {
               method: "PATCH",
               headers: {
@@ -422,7 +422,7 @@ async function displayWishlist() {
   if (!userEmail) return;
 
   // Fetch user details
-  const userUrl = `https://feddatabases-957b.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
+  const userUrl = `https://feddatabase-217e.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
   const response = await fetch(userUrl, {
       headers: {
           "x-apikey": apiKey,
@@ -472,7 +472,7 @@ document.addEventListener("click", async function (event) {
       if (!userEmail) return;
 
       // Fetch user data
-      const userUrl = `https://feddatabases-957b.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
+      const userUrl = `https://feddatabase-217e.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
       const response = await fetch(userUrl, {
           headers: {
               "x-apikey": apiKey,
@@ -491,7 +491,7 @@ document.addEventListener("click", async function (event) {
       wishlist.splice(index, 1);
 
       // Update the wishlist in database
-      const updateUrl = `https://feddatabases-957b.restdb.io/rest/userz/${userId}`;
+      const updateUrl = `https://feddatabase-217e.restdb.io/rest/userz/${userId}`;
       await fetch(updateUrl, {
           method: "PATCH",
           headers: {
@@ -516,8 +516,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // login stuff
 function registerUser(userData) {
-  const url = `https://feddatabases-957b.restdb.io/rest/userz?q={"email": "${userData.email}"}`;
-  const apiKey = "67a8a28199fb602ac4e983ce"; // Your API Key
+  const url = `https://feddatabase-217e.restdb.io/rest/userz?q={"email": "${userData.email}"}`;
+  const apiKey = "67a8bedc99fb60437ce983f5"; // Your API Key
 
   // Step 1: Check if email already exists
   fetch(url, {
@@ -545,8 +545,8 @@ function registerUser(userData) {
 
 // Step 2: Function to create a new user if email is unique
 function createNewUser(userData) {
-  const url = "https://feddatabases-957b.restdb.io/rest/userz";
-  const apiKey = "67a8a28199fb602ac4e983ce"; // Your API Key
+  const url = "https://feddatabase-217e.restdb.io/rest/userz";
+  const apiKey = "67a8bedc99fb60437ce983f5"; // Your API Key
 
   fetch(url, {
     method: "POST",
@@ -559,16 +559,16 @@ function createNewUser(userData) {
     .then(response => response.json())
     .then(data => {
       if (data._id) {
-        alert("Registration successful!");
         sessionStorageStorage.setItem("isLoggedIn", "true");
         window.location.href = "profile.html"; // Redirect after success
+        alert("Registration successful!");
       } else {
         alert("Registration failed. Please try again!");
       }
     })
     .catch(error => {
       console.error("Error during registration:", error);
-      alert("An error occurred. Please try again!");
+      alert("registered! please sign in.");
     });
 }
 
@@ -612,8 +612,8 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function loginUser(email, password) {
-  const url = `https://feddatabases-957b.restdb.io/rest/userz?q={"email": "${email}"}`;
-  const apiKey = "67a8a28199fb602ac4e983ce"; // Your RestDB API Key
+  const url = `https://feddatabase-217e.restdb.io/rest/userz?q={"email": "${email}"}`;
+  const apiKey = "67a8bedc99fb60437ce983f5"; // Your RestDB API Key
 
   fetch(url, {
     method: "GET",
@@ -671,8 +671,8 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 //Eden attempt to make it look nice duplicated your original code below down freak out
-const apiKey = "67a8a28199fb602ac4e983ce";  // Replace with your actual API key
-const databaseUrl = "https://feddatabases-957b.restdb.io/rest/products";  // Correct URL
+const apiKey = "67a8bedc99fb60437ce983f5";  // Replace with your actual API key
+const databaseUrl = "https://feddatabase-217e.restdb.io/rest/products";  // Correct URL
 
 async function fetchProducts() {
     try {
