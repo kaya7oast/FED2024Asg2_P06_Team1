@@ -353,20 +353,171 @@
 
 })(jQuery);
 
-// like function
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll(".product-like").forEach(function (likeButton) {
-    likeButton.addEventListener("click", function (event) {
-      event.preventDefault(); // Prevent any default link behavior
-      this.classList.toggle("active"); // Toggle the 'active' class
-    });
-  });
+// like function / wishlist
+document.addEventListener("click", async function (event) {
+  if (event.target.classList.contains("product-like")) {
+      event.preventDefault();
+      const likeButton = event.target;
+      likeButton.classList.toggle("active");
+
+      // Get the product details
+      const productElement = likeButton.closest(".product");
+      const productName = productElement.querySelector(".product-title a").textContent;
+      const productImage = productElement.querySelector("img").src;
+      const productPrice = productElement.querySelector(".product-price span").textContent;
+
+      const userEmail = localStorage.getItem("userEmail");
+      if (!userEmail) {
+          alert("Please log in to add to wishlist.");
+          return;
+      }
+
+      // Fetch user details from database
+      const userUrl = `https://fedasg2database-7655.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
+      const response = await fetch(userUrl, {
+          headers: {
+              "x-apikey": apiKey,
+              "Accept": "application/json"
+          }
+      });
+
+      const users = await response.json();
+      if (users.length === 0) {
+          alert("User not found.");
+          return;
+      }
+
+      const user = users[0];
+      const userId = user._id;
+      const wishlist = user.wishlist || [];
+
+      // Check if product is already in wishlist
+      const productExists = wishlist.some(item => item.name === productName);
+      if (!productExists) {
+          wishlist.push({
+              name: productName,
+              image: productImage,
+              price: productPrice
+          });
+
+          // Update wishlist in database
+          const updateUrl = `https://fedasg2database-7655.restdb.io/rest/userz/${userId}`;
+          await fetch(updateUrl, {
+              method: "PATCH",
+              headers: {
+                  "x-apikey": apiKey,
+                  "Content-Type": "application/json"
+              },
+              body: JSON.stringify({ wishlist })
+          });
+
+          console.log("Wishlist updated:", wishlist);
+      }
+  }
 });
+
+//wishlist display
+async function displayWishlist() {
+  const userEmail = localStorage.getItem("userEmail");
+  if (!userEmail) return;
+
+  // Fetch user details
+  const userUrl = `https://fedasg2database-7655.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
+  const response = await fetch(userUrl, {
+      headers: {
+          "x-apikey": apiKey,
+          "Accept": "application/json"
+      }
+  });
+
+  const users = await response.json();
+  if (users.length === 0) return;
+
+  const user = users[0];
+  const wishlist = user.wishlist || [];
+
+  const wishlistContainer = document.getElementById("wishlist-container");
+  wishlistContainer.innerHTML = ""; // Clear previous items
+
+  wishlist.forEach((product, index) => {
+      const productHTML = `
+          <div class="col-md-6 col-lg-4" data-index="${index}">
+              <div class="product">
+                  <figure class="product-image">
+                      <a href="#!" class="btn btn-ico btn-rounded btn-white remove-wishlist"><i class="icon-x"></i></a>
+                      <a href="${product.name}.html">
+                          <img src="${product.image}" alt="Product Image">
+                      </a>
+                  </figure>
+                  <div class="product-meta">
+                      <h3 class="product-title"><a href="${product.name}.html">${product.name}</a></h3>
+                      <div class="product-price">
+                          <span>${product.price}</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      `;
+      wishlistContainer.innerHTML += productHTML;
+  });
+}
+
+//Wishlist delete
+document.addEventListener("click", async function (event) {
+  if (event.target.closest(".remove-wishlist")) {
+      const productElement = event.target.closest(".col-md-6");
+      const index = productElement.dataset.index;
+
+      const userEmail = localStorage.getItem("userEmail");
+      if (!userEmail) return;
+
+      // Fetch user data
+      const userUrl = `https://fedasg2database-7655.restdb.io/rest/userz?q={"email":"${userEmail}"}`;
+      const response = await fetch(userUrl, {
+          headers: {
+              "x-apikey": apiKey,
+              "Accept": "application/json"
+          }
+      });
+
+      const users = await response.json();
+      if (users.length === 0) return;
+
+      const user = users[0];
+      const userId = user._id;
+      const wishlist = user.wishlist || [];
+
+      // Remove the product from wishlist
+      wishlist.splice(index, 1);
+
+      // Update the wishlist in database
+      const updateUrl = `https://fedasg2database-7655.restdb.io/rest/userz/${userId}`;
+      await fetch(updateUrl, {
+          method: "PATCH",
+          headers: {
+              "x-apikey": apiKey,
+              "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ wishlist })
+      });
+
+      // Refresh the wishlist display
+      displayWishlist();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  if (window.location.pathname.includes("profile.html")) {
+      displayWishlist();
+  }
+});
+
+
 
 // login stuff
 function registerUser(userData) {
-  const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${userData.email}"}`;
-  const apiKey = "67a5be5f9c979725831b2a7d"; // Your API Key
+  const url = `https://fedasg2database-7655.restdb.io/rest/userz?q={"email": "${userData.email}"}`;
+  const apiKey = "67a859084dfa0c837031a409"; // Your API Key
 
   // Step 1: Check if email already exists
   fetch(url, {
@@ -388,14 +539,14 @@ function registerUser(userData) {
     })
     .catch(error => {
       console.error("Error checking email:", error);
-      alert("An error occurred. Please try again.");
+      alert("An error has occurred. Please try again.");
     });
 }
 
 // Step 2: Function to create a new user if email is unique
 function createNewUser(userData) {
-  const url = "https://feddatabase-954b.restdb.io/rest/userz";
-  const apiKey = "67a5be5f9c979725831b2a7d"; // Your API Key
+  const url = "https://fedasg2database-7655.restdb.io/rest/userz";
+  const apiKey = "67a859084dfa0c837031a409"; // Your API Key
 
   fetch(url, {
     method: "POST",
@@ -409,14 +560,15 @@ function createNewUser(userData) {
     .then(data => {
       if (data._id) {
         alert("Registration successful!");
+        sessionStorageStorage.setItem("isLoggedIn", "true");
         window.location.href = "profile.html"; // Redirect after success
       } else {
-        alert("Registration failed. Please try again.");
+        alert("Registration failed. Please try again!");
       }
     })
     .catch(error => {
       console.error("Error during registration:", error);
-      alert("An error occurred. Please try again.");
+      alert("An error occurred. Please try again!");
     });
 }
 
@@ -460,8 +612,8 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 function loginUser(email, password) {
-  const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${email}"}`;
-  const apiKey = "67a5be5f9c979725831b2a7d"; // Your RestDB API Key
+  const url = `https://fedasg2database-7655.restdb.io/rest/userz?q={"email": "${email}"}`;
+  const apiKey = "67a859084dfa0c837031a409"; // Your RestDB API Key
 
   fetch(url, {
     method: "GET",
@@ -483,6 +635,7 @@ function loginUser(email, password) {
       if (user.password === password) {
         alert("Login successful!");
         localStorage.setItem("userEmail", email); // Save login info
+        sessionStorage.setItem("isLoggedIn", "true");
         window.location.href = "profile.html"; // Redirect to profile
       } else {
         alert("Incorrect password. Please try again.");
@@ -517,185 +670,9 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-// document.addEventListener("DOMContentLoaded", function () {
-//   document.querySelectorAll(".product-like").forEach(function (likeButton) {
-//     likeButton.addEventListener("click", function (event) {
-//       event.preventDefault(); // Prevent any default link behavior
-      
-//       // Get product data from the data attributes of the clicked button
-//       const product = {
-//         id: this.getAttribute("data-id"),
-//         name: this.getAttribute("data-name"),
-//         price: this.getAttribute("data-price"),
-//         image: this.getAttribute("data-image")
-//       };
-
-//       // Add or remove 'active' class for visual feedback
-//       this.classList.toggle("active");
-
-//       // Send the product to the user's wishlist in the database
-//       addToWishlist(product);
-//     });
-//   });
-// });
-
-// // Function to add product to wishlist in the database
-// function addToWishlist(product) {
-//   const userEmail = localStorage.getItem("userEmail"); // Get the logged-in user's email
-//   const apiKey = "67a5be5f9c979725831b2a7d"; // RestDB API key
-
-//   // Get the user's current wishlist from the database
-//   const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${userEmail}"}`;
-  
-//   fetch(url, {
-//     method: "GET",
-//     headers: {
-//       "Content-Type": "application/json",
-//       "x-apikey": apiKey,
-//     },
-//   })
-//     .then(response => response.json())
-//     .then(data => {
-//       if (data.length === 0) {
-//         alert("User not found.");
-//         return;
-//       }
-
-//       const user = data[0]; // Get the user data
-//       const wishlist = user.wishlist || []; // Initialize wishlist if it's empty
-
-//       // Add the liked product to the wishlist
-//       wishlist.push(product);
-
-//       // Update the user's wishlist in the database
-//       const updateUrl = `https://feddatabase-954b.restdb.io/rest/userz/${user._id}`;
-      
-//       fetch(updateUrl, {
-//         method: "PUT",
-//         headers: {
-//           "Content-Type": "application/json",
-//           "x-apikey": apiKey,
-//         },
-//         body: JSON.stringify({ wishlist: wishlist }),
-//       })
-//         .then(response => response.json())
-//         .then(updatedUser => {
-//           alert("Product added to your wishlist!");
-//         })
-//         .catch(error => {
-//           console.error("Error updating wishlist:", error);
-//           alert("Error adding product to wishlist.");
-//         });
-//     })
-//     .catch(error => {
-//       console.error("Error fetching user data:", error);
-//       alert("Error fetching user data.");
-//     });
-// }
-
-// document.addEventListener("DOMContentLoaded", function () {
-//   const userEmail = localStorage.getItem("userEmail"); // Get the logged-in user's email
-//   const apiKey = "67a5be5f9c979725831b2a7d"; // RestDB API key
-
-//   // Fetch the user's data from the database
-//   const url = `https://feddatabase-954b.restdb.io/rest/userz?q={"email": "${userEmail}"}`;
-
-//   fetch(url, {
-//     method: "GET",
-//     headers: {
-//       "Content-Type": "application/json",
-//       "x-apikey": apiKey,
-//     },
-//   })
-//     .then(response => response.json())
-//     .then(data => {
-//       if (data.length === 0) {
-//         alert("User not found.");
-//         return;
-//       }
-
-//       const user = data[0]; // Get the user data
-//       const wishlist = user.wishlist || []; // Get the wishlist from the user data
-
-//       // Populate the wishlist section in profile.html
-//       const wishlistContainer = document.querySelector("#wishlistContainer"); // The container in your HTML
-//       wishlistContainer.innerHTML = ""; // Clear existing content
-
-//       wishlist.forEach(product => {
-//         const productHTML = `
-//           <div class="col-md-6 col-lg-4">
-//             <div class="product">
-//               <figure class="product-image">
-//                 <a href="#!" class="btn btn-ico btn-rounded btn-white"><i class="icon-x"></i></a>
-//                 <a href="#!">
-//                   <img src="${product.image}" alt="${product.name}">
-//                   <img src="${product.image}" alt="${product.name}">
-//                 </a>
-//               </figure>
-//               <div class="product-meta">
-//                 <h3 class="product-title"><a href="#!">${product.name}</a></h3>
-//                 <div class="product-price">
-//                   <span>$${product.price}</span>
-//                   <span class="product-action">
-//                     <a href="#!">Add to cart</a>
-//                   </span>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         `;
-//         wishlistContainer.innerHTML += productHTML;
-//       });
-//     })
-//     .catch(error => {
-//       console.error("Error fetching user data:", error);
-//       alert("Error fetching user data.");
-//     });
-// });
-
-
-
-
-
-
-// const apiKey = "67a5be5f9c979725831b2a7d"; // Replace with your actual API key
-// const databaseUrl = "https://feddatabase-954b.restdb.io/rest/products  "; // Replace with your database URL
-
-// async function fetchFirstProduct() {
-//     try {
-//         const response = await fetch(databaseUrl, {
-//             headers: {
-//                 "x-apikey": apiKey,
-//                 "Accept": "application/json"
-//             }
-//         });
-
-//         if (!response.ok) throw new Error("Failed to fetch products");
-
-//         const products = await response.json();
-//         if (products.length > 0) {
-//             displayFirstProduct(products[0]);
-//         }
-//     } catch (error) {
-//         console.error("Error:", error);
-//     }
-// }
-
-// function displayFirstProduct(product) {
-//     document.getElementById("product-img1").src = product.image1 || "https://via.placeholder.com/200";
-//     document.getElementById("product-img2").src = product.image2 || "https://via.placeholder.com/200";
-
-//     document.getElementById("product-name").textContent = product.name;
-//     document.getElementById("product-price").textContent = `$${product.price}`;
-// }
-
-// // Fetch the first product when the page loads
-// fetchFirstProduct();
-
-
 //Eden attempt to make it look nice duplicated your original code below down freak out
-const apiKey = "67a5be5f9c979725831b2a7d";  // Replace with your actual API key
-const databaseUrl = "https://feddatabase-954b.restdb.io/rest/products";  // Correct URL
+const apiKey = "67a859084dfa0c837031a409";  // Replace with your actual API key
+const databaseUrl = "https://fedasg2database-7655.restdb.io/rest/products";  // Correct URL
 
 async function fetchProducts() {
     try {
@@ -756,74 +733,176 @@ function displayProduct(product) {
 // Fetch and display products when the page loads
 fetchProducts();
 
+// more login stuff
+document.addEventListener("DOMContentLoaded", function () {
+  const userDisplay = document.getElementById("userDisplay");
+  const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+  const userEmail = localStorage.getItem("userEmail"); // Retrieve logged-in user's email
+  if (userEmail && isLoggedIn)
+    {userDisplay.innerHTML = `<a class="nav-link" href="profile.html">Michael</a>`;}
+});
+
+//add to cart stuff
+document.addEventListener("click", function (event) {
+  const addToCartButton = event.target.closest("span.product-action a");
+  const isLoggedIn = sessionStorage.getItem("isLoggedIn");
+  
+  if (addToCartButton && !isLoggedIn) {
+    alert("Log in First.");
+    return;
+  }
+
+  if (addToCartButton && isLoggedIn) {
+      event.preventDefault();
+      console.log("✅ Add to Cart button clicked!");
+
+      const productElement = addToCartButton.closest(".product"); // Get product container
+      if (!productElement) return;
+
+      const product = {
+          id: productElement.dataset.id || "unknown",
+          name: productElement.querySelector(".product-title a").innerText.trim(),
+          image: productElement.querySelector("img").src,
+          price: productElement.querySelector(".product-price span").innerText.replace("$", "").trim(),
+          quantity: 1
+      };
+
+      console.log("🛒 Product Added:", product); // Debugging message
+      addToCart(product);
+  }
+});
+
+function addToCart(product) {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+  let existingProduct = cart.find(item => item.id === product.id);
+  if (existingProduct) {
+      existingProduct.quantity += 1;
+  } else {
+      cart.push(product);
+  }
+
+  localStorage.setItem("cart", JSON.stringify(cart));
+  console.log("🛒 Cart Updated:", cart);
+
+  updateCartUI();
+}
+
+function updateCartUI() {
+  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+  const cartContainer = document.getElementById("cart-sidebar");
+  if (!cartContainer) return; // Prevent errors if cart sidebar is not on page
+
+  cartContainer.innerHTML = "";
+
+  cart.forEach(item => {
+      cartContainer.innerHTML += `
+          <div class="col-12">
+              <div class="cart-item cart-item-sm">
+                  <div class="row align-items-center">
+                      <div class="col-lg-9">
+                          <div class="media media-product">
+                              <a href="#!"><img src="${item.image}" alt="Image"></a>
+                              <div class="media-body">
+                                  <h5 class="media-title">${item.name}</h5>
+                                  <span class="media-subtitle">Price: $${item.price}</span>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      `;
+  });
+}
+
+// Call on page load
+if (isLoggedIn){
+document.addEventListener("DOMContentLoaded", updateCartUI);}
 
 
-//original code Jayden
+//cart.html page
+document.addEventListener("DOMContentLoaded", function () {
+  if (window.location.pathname.includes("cart.html"))
+  {if (displayCartItems()) { 
+    displayCartItems();
+    console.log("displayCartItems function is running!");
+   }
+  else {
+    console.log("Error");
+  }
+  }
+});
 
-// const apiKey = "67a5be5f9c979725831b2a7d";  // Replace with your actual API key
-// const databaseUrl = "https://feddatabase-954b.restdb.io/rest/products";  // Correct URL
+function displayCartItems() {
+  const cartContainer = document.getElementById("cart-item-list"); // Make sure this ID matches your cart container in HTML
+  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
 
-// async function fetchProducts() {
-//     try {
-//         const response = await fetch(databaseUrl, {
-//             headers: {
-//                 "x-apikey": apiKey,
-//                 "Accept": "application/json"
-//             }
-//         });
+  // If there are no items in the cart
+  if (cartItems.length === 0) {
+      cartContainer.innerHTML = "<p>Your cart is empty.</p>";
+      return;
+  }
 
-//         if (!response.ok) throw new Error("Failed to fetch products");
+  // Clear the cart container before adding new items
+  cartContainer.innerHTML = ""; 
 
-//         const products = await response.json();
-        
-//         // Log the products to verify their structure
-//         console.log(products);
+  // Loop through the cart items and generate HTML
+  cartItems.forEach(item => {
+      const cartItemHTML = `
+          <div class="cart-item">
+              <div class="row align-items-center">
+                <div class="col-12 col-lg-6">
+                  <div class="media media-product">
+                    <a href="#!"><img src="assets/images/demo/product-24.jpg" alt="Image"></a>
+                    <div class="media-body">
+                      <h5 class="media-title">Closca helmet</h5>
+                      <span class="small">Black</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-4 col-lg-2 text-center">
+                  <span class="cart-item-price">$132</span>
+                </div>
+                <div class="col-4 col-lg-2 text-center">
+                  <div class="counter">
+                    <span class="counter-minus icon-minus" field='qty-2'></span>
+                    <input type='text' name='qty-2' class="counter-value" value="1" min="1" max="10">
+                    <span class="counter-plus icon-plus" field='qty-2'></span>
+                  </div>
+                </div>
+                <div class="col-4 col-lg-2 text-center">
+                  <span class="cart-item-price">$132</span>
+                </div>
+                <a href="#!" class="cart-item-close"><i class="icon-x"></i></a>
+              </div>
+            </div>
+      `;
 
-//         // Loop through all products and display them
-//         products.forEach(product => {
-//             displayProduct(product);
-//         });
-//     } catch (error) {
-//         console.error("Error:", error);
-//     }
-// }
+      // Append each product's HTML to the cart container
+      cartContainer.innerHTML += cartItemHTML;
+  });
 
-// function displayProduct(product) {
-//     // Create the HTML structure for each product
-//     const productHTML = `
-//         <div class="col-6 col-lg-4">
-//             <div class="product">
-//                 <figure class="product-image">
-//                     <a href="product-classic.html">
-//                         <img src="${product.image1 || 'https://via.placeholder.com/200'}" alt="Image 1">
-//                         <img src="${product.image2 || 'https://via.placeholder.com/200'}" alt="Image 2">
-//                         <img src="${product.image3 || 'https://via.placeholder.com/200'}" alt="Image 3">
-//                     </a>
-//                 </figure>
-//                 <div class="product-meta">
-//                     <h3 class="product-title">
-//                         <a href="product-classic.html">${product.name}</a>
-//                     </h3>
-//                     <div class="product-price">
-//                         <span>$${product.price}</span>
-//                         <span class="product-action">
-//                             <a href="#!">Add to cart</a>
-//                         </span>
-//                     </div>
-//                     <p class="${product.instock ? 'instock' : 'outofstock'}">
-//                         ${product.instock ? 'In Stock' : 'Out of Stock'}
-//                     </p>
-//                     <p><strong>Brand:</strong> ${product.brand}</p>
-//                     <p><strong>Category:</strong> ${product.category}</p>
-//                     <p><strong>Description:</strong> ${product.description}</p>
-//                 </div>
-//             </div>
-//         </div>
-//     `;
+  // Event listener for the close buttons
+  const closeButtons = document.querySelectorAll(".cart-item-close");
+  closeButtons.forEach(button => {
+      button.addEventListener("click", function (event) {
+          const itemId = event.target.closest("a").dataset.id;
+          removeCartItem(itemId);
+      });
+  });
+}
 
-//     // Append the product to the product container in the HTML
-//     document.getElementById("products-container").innerHTML += productHTML;
-// }
+function removeCartItem(itemId) {
+  const cartItems = JSON.parse(localStorage.getItem("cart")) || [];
 
-// // Fetch and display products when the page loads
-// fetchProducts();
+  // Filter out the item to be removed
+  const updatedCart = cartItems.filter(item => item.id !== itemId);
+  
+  // Save the updated cart to localStorage
+  localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+  // Re-render the cart items
+  displayCartItems();
+}
+
